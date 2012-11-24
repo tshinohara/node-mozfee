@@ -92,23 +92,7 @@ class Mozfee
         @mozrepl.close()
         @rl.close()
         @rl.output.write '\n'
-        @rl.input.destroy() ## ???
+        @rl.input.destroy()
         @closed = true
 
-stdin  = process.stdin
-stdout = process.stdout
-mozfee = new Mozfee stdin, stdout
-mozfee.run()
-
-# Log an error.
-process.on 'uncaughtException', (err)->
-    stdout.write (err.stack or err.toString()) + '\n'
-
-# 微妙に二回Ctrl-cしたときの挙動が違う
-# 
-#repl.on 'SIGINT', ->
-#    console.log "sigint"
-
-#repl.on 'pause', ->
-#    console.log "pause"
-
+exports.Mozfee = Mozfee
