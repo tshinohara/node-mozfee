@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/asua/node-mozfee.git"
+    "url": "git://github.com/tshinohara/node-mozfee.git"
   },
   "author": {
       "name": "Takenari Shinohara"
