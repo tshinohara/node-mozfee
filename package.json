@@ -1,0 +1,26 @@
+{
+  "name": "mozfee",
+  "version": "0.1.0",
+  "description": "mozrepl + coffee-script",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "mozfee": "./bin/mozfee"
+  },
+  "dependencies" : {
+    "coffee-script": "~>1.4.0",
+    "cli-color": "~>0.2.1"
+  },
+  "engines": {
+    "node": "~>0.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/asua/node-mozfee.git"
+  },
+  "author": {
+      "name": "Takenari Shinohara"
+  },
+  "readmeFilename": "README.md"
+}
