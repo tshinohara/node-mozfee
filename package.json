@@ -1,6 +1,6 @@
 {
   "name": "mozfee",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "mozrepl + coffee-script",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
