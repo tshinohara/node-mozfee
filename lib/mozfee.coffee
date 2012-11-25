@@ -3,13 +3,26 @@ readline     = require 'readline'
 {Mozrepl}    = require './mozrepl'
 clc          = require 'cli-color'
 
-
+empty_cli_color = ->
+    f = (x)-> x    
+    for k in ['black', 'red', 'green',
+        'yellow', 'blue', 'magenta', 'cyan', 'white'
+        'xterm', 'bold', 'italic','underline','inverse','strike']
+        f[k] = f
+    f
+        
 class Mozfee
     NORMAL = 'normal'
     CONTINUATION = 'continuation'
     MOZREPLING = 'mozrepling'
-    
-    constructor: (@stdin, @stdout, @enableColours=yes) ->
+
+    DefaultOptioin = {
+        color: true,
+        'mozrepl-greeting': false,
+    }
+    constructor: (@stdin, @stdout, @opt={}) ->
+        @opt[k] ?= v for own k, v of DefaultOptioin
+        @clc = if @opt.color then clc else empty_cli_color()
         @mozrepl = new Mozrepl
         @rl = readline.createInterface @stdin, @stdout
         @rl.on "line", (line)=> @line line
@@ -46,7 +59,7 @@ class Mozfee
         try
             jscode = CoffeeScript.compile code, bare: true
         catch e
-            @rl.output.write clc.yellow("Compile Error\n")
+            @rl.output.write @clc.yellow("Compile Error\n")
             @rl.output.write "#{e}\n"
             @mode = NORMAL
             return on
@@ -83,7 +96,8 @@ class Mozfee
             # Mozrepl が接続を切ったらreplを落す
             @mozrepl.on "close", =>
                 @close()
-            @rl.output.write clc.blue("#{@mozrepl.greeting}\n")
+            if @opt['mozrepl-greeting']
+                @rl.output.write @clc.blue("#{@mozrepl.greeting}\n")
             @prompt()
 
     close: ->
