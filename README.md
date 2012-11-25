@@ -39,8 +39,16 @@ Continuation mode continues untill you pass an empty line.
     mozfee>
 
 ### Options
+Lookup `mozfee --help` for options you can use.
 
-You can't pass any options currently. 
+    mozfee [OPTIONS]
+    
+    OPTIONS:
+      --host <host>            Host (default: localhost)
+      --port <port>            Port (default: 4242)
+      --[no-]mozrepl-greeting  Shows greeting from Mozrepl (defualt: false).
+      --[no-]color             Colorize the output (default: true).
+      --help                   Show this message.
 
 License
 -------
