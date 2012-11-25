@@ -19,11 +19,13 @@ class Mozfee
     DefaultOptioin = {
         color: true,
         'mozrepl-greeting': false,
+        host: 'localhost'
+        port: 4242
     }
     constructor: (@stdin, @stdout, @opt={}) ->
         @opt[k] ?= v for own k, v of DefaultOptioin
         @clc = if @opt.color then clc else empty_cli_color()
-        @mozrepl = new Mozrepl
+        @mozrepl = new Mozrepl @opt.host, @opt.port
         @rl = readline.createInterface @stdin, @stdout
         @rl.on "line", (line)=> @line line
         @rl.on "pause", => @rl.close()

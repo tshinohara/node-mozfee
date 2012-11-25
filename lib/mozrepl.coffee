@@ -40,9 +40,7 @@ class Mozrepl extends EventEmitter
             else
                 @greeting = str
                 @setReplName @buffer
-                # initalize
                 @state = CONNECTED
-                # multiline mode
                 @bare_eval "#{@repl_name}.setenv('inputMode', 'multiline')", =>
                     @emit "connect"
                     @serve()
@@ -78,7 +76,7 @@ class Mozrepl extends EventEmitter
         
     connect: ->
         @state = CONNECTING
-        @con = net.createConnection(PORT, HOST)
+        @con = net.createConnection(@port, @host)
         @con.setEncoding 'utf8'
         @con.on "connect",  =>
             @con.on "data", (s) =>

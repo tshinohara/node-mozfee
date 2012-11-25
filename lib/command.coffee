@@ -9,6 +9,8 @@ usage = """
 mozfee [OPTIONS]
 
 OPTIONS:
+  --host <host>            Host (default: localhost)
+  --port <port>            Port (default: 4242)
   --[no-]mozrepl-greeting  Shows greeting from Mozrepl (defualt: false).
   --[no-]color             Colorize the output (default: true).
   --help                   Show this message.
@@ -23,6 +25,8 @@ run = ->
     mozfee = new Mozfee stdin, stdout, {
         'mozrepl-greeting': argv['mozrepl-greeting']
         color: argv.color
+        host: argv.host
+        port: argv.port
     }
     mozfee.run()
 
