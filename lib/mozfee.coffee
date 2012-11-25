@@ -61,7 +61,7 @@ class Mozfee
         try
             jscode = CoffeeScript.compile code, bare: true
         catch e
-            @rl.output.write @clc.yellow("Compile Error\n")
+            @rl.output.write @clc.yellow.bold("!! CoffeeScript Compile Error !!\n")
             @rl.output.write "#{e}\n"
             @mode = NORMAL
             return on
@@ -101,6 +101,10 @@ class Mozfee
             if @opt['mozrepl-greeting']
                 @rl.output.write @clc.blue("#{@mozrepl.greeting}\n")
             @prompt()
+        @mozrepl.on "error", (e)=>
+            @rl.output.write @clc.red.bold("!! Mozrepl Connection Error !!\n")
+            @rl.output.write(e.stack || e.toString())
+            @close()
 
     close: ->
         return if @_closing

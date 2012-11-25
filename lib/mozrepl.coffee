@@ -12,6 +12,7 @@ class Mozrepl extends EventEmitter
     CONNECTED = 2
     CLOSING = 3
     CLOSED = 4
+    ERROR = 5
 
     constructor: (@host = HOST, @port = PORT)->
         @state = INITAIAL
@@ -93,9 +94,11 @@ class Mozrepl extends EventEmitter
                     @lines = @lines.concat frags
                     @buffer = last
                 @check()
-            @con.on "error", (e) => @close()
             @con.on "end", (e) => @close()
             @con.on "close", (e) => @close()
+        @con.on "error", (e) =>
+            @emit "error", e
+            @state = ERROR
 
     close: ->
         return if @state == CLOSING
