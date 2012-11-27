@@ -48,8 +48,33 @@ describe 'Mozrepl', ->
         # CoffeeScript の for 式に問題があるがいする。。
         for [code, expected_result] in tests
             ((code, expected_result)->
-                it "should eval '#{code}' to '#{expected_result}'", (done)->
+                it "should eval JS code '#{code}' to '#{expected_result}'", (done)->
                     mozrepl.eval code, (result)->
+                        result.should.be.string expected_result
+                        done()
+            )(code, expected_result)
+
+    describe '#evalCS()', ->
+        mozrepl = null
+        before (done)->
+            mozrepl = new Mozrepl
+            mozrepl.connect()
+            mozrepl.on 'connect', -> done()
+            mozrepl.on 'error', -> done(true)
+        after ->
+            mozrepl.close()
+
+        tests = [
+            ['1','1']
+            ['1+1', '2']
+            ['"hoge".charAt 0', '"h"']
+        ]
+        # 汚ない。。。
+        # CoffeeScript の for 式に問題があるがいする。。
+        for [code, expected_result] in tests
+            ((code, expected_result)->
+                it "should eval CS code '#{code}' to '#{expected_result}'", (done)->
+                    mozrepl.evalCS code, (err, result)->
                         result.should.be.string expected_result
                         done()
             )(code, expected_result)

@@ -1,6 +1,6 @@
-net = require 'net'
-util = require 'util'
 EventEmitter = require('events').EventEmitter
+CoffeeScript = require 'coffee-script'
+net = require 'net'
 
 #
 class Mozrepl extends EventEmitter
@@ -71,6 +71,15 @@ class Mozrepl extends EventEmitter
         code = "try {#{code}} catch(e) {e}\n--end-remote-input\n"
         @pending_requests.push code: code, cb: cb
         @serve()
+
+    evalCS: (csCode, cb) ->
+        try
+            jsCode = CoffeeScript.compile csCode, bare: true
+        catch e
+            # Async callbacks must be always async
+            process.nextTick -> cb(e)
+            return
+        @eval jsCode, (res)-> cb(null, res)
 
     repl: (command, cb) ->
         @eval "#{@repl_name}.#{command}", cb
