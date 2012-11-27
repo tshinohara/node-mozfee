@@ -7,15 +7,15 @@ class Mozrepl extends EventEmitter
     HOST = 'localhost'
     PORT = 4242
 
-    INITAIAL = 0
     CONNECTING = 1
-    CONNECTED = 2
-    CLOSING = 3
-    CLOSED = 4
-    ERROR = 5
+    INITIALIZING = 2
+    CONNECTED = 3
+    CLOSING = 4
+    CLOSED = 5
+    ERROR = 6
 
     constructor: (@host = HOST, @port = PORT)->
-        @state = INITAIAL
+        @state = null
         @lines = []
         @buffer = ''
         @repl_name = null
@@ -43,6 +43,7 @@ class Mozrepl extends EventEmitter
                 @setReplName @buffer
                 @state = CONNECTED
                 @bare_eval "#{@repl_name}.setenv('inputMode', 'multiline')", =>
+                    @connectCb() if @connectCb
                     @emit "connect"
                     @serve()
                 @serve()
@@ -83,29 +84,35 @@ class Mozrepl extends EventEmitter
 
     repl: (command, cb) ->
         @eval "#{@repl_name}.#{command}", cb
+
+    onData: (s)->
+        @emit "_received", s # for debug
+        frags = s.split "\n"
+        if frags.length == 0
+            return
+        if frags.length == 1
+            @buffer += frags[0]
+        else
+            last  = frags.pop()
+            first = frags.shift()
+            @lines.push(@buffer + first)
+            @lines = @lines.concat frags
+            @buffer = last
+        @check()
         
-    connect: ->
+    connect: (cb)->
         @state = CONNECTING
+        @connectCb = cb
         @con = net.createConnection(@port, @host)
         @con.setEncoding 'utf8'
         @con.on "connect",  =>
-            @con.on "data", (s) =>
-                @emit "_received", s # for debug
-                frags = s.split "\n"
-                if frags.length == 0
-                    return
-                if frags.length == 1
-                    @buffer += frags[0]
-                else
-                    last  = frags.pop()
-                    first = frags.shift()
-                    @lines.push(@buffer + first)
-                    @lines = @lines.concat frags
-                    @buffer = last
-                @check()
-            @con.on "end", (e) => @close()
+            @state = INITIALIZING
+            @con.on "data",  (s) => @onData s
+            @con.on "end",   (e) => @close()
             @con.on "close", (e) => @close()
         @con.on "error", (e) =>
+            if @connectCb && @state in [CONNECTING, INITIALIZING]
+                cb(e)
             @emit "error", e
             @state = ERROR
 
@@ -117,25 +124,4 @@ class Mozrepl extends EventEmitter
         @emit "close"
         @state = CLOSED
         
-#
-if require.main == module
-  m = new Mozrepl
-  m.connect()
-  m.on "connect", ->
-      console.log "connected"
-      tests = [
-          "1"
-          "1+2"
-          "{ a: 2 }",
-          "ffff",
-      ]
-      for code in tests
-          m.eval code, (r)-> console.log "result '#{code}' = #{r}"
-      m.repl "enter(content)"
-      m.eval "document.title", (r) -> console.log r
-      m.close()
-
-  # m.on "_sended", (s)-> console.log "_sended : #{s}"
-  # m.on "_received", (s)-> console.log "_received : #{s}"
-
 exports.Mozrepl = Mozrepl

@@ -24,22 +24,21 @@ run = ->
         return
     stdin  = process.stdin
     stdout = process.stdout
+    options = {
+        'mozrepl-greeting': argv['mozrepl-greeting']
+        color: argv.color
+    }
     mozrepl = new Mozrepl argv.host, argv.port
-    errCb = (e)->
-        console.error clc.red.bold("Error occured while connecting Mozrepl")
-        console.error(e.stack || e.toString())
-    mozrepl.connect()        
-    mozrepl.on 'connect', ->
-        mozrepl.removeListener 'error', errCb
-        mozfee = new Mozfee mozrepl, stdin, stdout, {
-            'mozrepl-greeting': argv['mozrepl-greeting']
-            color: argv.color
-        }
+    mozrepl.connect (err)->
+        if err
+            console.error clc.red.bold("Error occured while connecting Mozrepl")
+            console.error(err.stack || err.toString())
+            return
+        mozfee = new Mozfee mozrepl, stdin, stdout, options
         mozfee.run()
-    mozrepl.on 'error', errCb
 
 # Log an error.
-#process.on 'uncaughtException', (err)->
-#    console.error (err.stack or err.toString())
+process.on 'uncaughtException', (err)->
+    console.error (err.stack or err.toString())
 
 exports.run = run
