@@ -1,5 +1,6 @@
 {Mozrepl} = require '../lib/mozrepl'
 chai = require 'chai'
+chai.should()
 
 describe 'Mozrepl', ->
     describe '#connect()', ->
@@ -27,3 +28,28 @@ describe 'Mozrepl', ->
             m.connect()
             m.on 'connect', -> throw "error"
             m.on 'error', -> done()
+
+    describe '#eval()', ->
+        mozrepl = null
+        before (done)->
+            mozrepl = new Mozrepl
+            mozrepl.connect()
+            mozrepl.on 'connect', -> done()
+            mozrepl.on 'error', -> done(true)
+        after ->
+            mozrepl.close()
+
+        tests = [
+            ['1','1']
+            ['1+1', '2']
+            ['1 \n + 1', '2']
+        ]
+        # 汚ない。。。
+        # CoffeeScript の for 式に問題があるがいする。。
+        for [code, expected_result] in tests
+            ((code, expected_result)->
+                it "should eval '#{code}' to '#{expected_result}'", (done)->
+                    mozrepl.eval code, (result)->
+                        result.should.be.string expected_result
+                        done()
+            )(code, expected_result)
