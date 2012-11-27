@@ -11,6 +11,7 @@ usage = """
 mozfee [OPTIONS]
 
 OPTIONS:
+  --eval <code>            Eval code and exit.
   --host <host>            Host (default: localhost)
   --port <port>            Port (default: 4242)
   --[no-]mozrepl-greeting  Shows greeting from Mozrepl (defualt: false).
@@ -26,17 +27,27 @@ run = ->
         return
     stdin  = process.stdin
     stdout = process.stdout
-    options = {
-        'mozrepl-greeting': argv['mozrepl-greeting']
-        color: argv.color
-    }
     mozrepl = new Mozrepl argv.host, argv.port
     mozrepl.connect (err)->
         if err
             console.error _error("An error occured while connecting Mozrepl")
             console.error (err.stack || err.toString())
-            process.exit 1            
-        mozfee = new Mozfee mozrepl, stdin, stdout, options
-        mozfee.run()
+            process.exit 1
+        if argv.eval
+            code = argv.eval.toString()
+            mozrepl.evalCS code, (err, res)->
+                if err
+                    console.error _error("CoffeeScript Compile Error")
+                    console.error (err.stack || err.toString())
+                    process.exit 1
+                console.log res
+                process.exit 0    
+        else
+            options = {
+                'mozrepl-greeting': argv['mozrepl-greeting']
+                color: argv.color
+            }
+            mozfee = new Mozfee mozrepl, stdin, stdout, options
+            mozfee.run()
 
 exports.run = run

@@ -16,10 +16,11 @@ Usage
 Run mozfee command.
 
     $ mozfee
-    
-      ... Greetings from Mozrepl ...
-      
-    mozfee> 
+    mozfee> repl.enter content
+    [object Window] - {window: {...}, document: {...}, InstallTrigger: {...}, location: {...}, sh_requests: {...}, sh_isEmailAddress: function() {...}, sh_setHref: function() {...}, ...}
+    mozfee> document.title
+    "mozfee"
+
 
 ### How to end the REPL
 
@@ -44,6 +45,7 @@ Lookup `mozfee --help` for options you can use.
     mozfee [OPTIONS]
     
     OPTIONS:
+      --eval <code>            Eval code and exit.
       --host <host>            Host (default: localhost)
       --port <port>            Port (default: 4242)
       --[no-]mozrepl-greeting  Shows greeting from Mozrepl (defualt: false).
