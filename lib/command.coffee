@@ -18,6 +18,8 @@ OPTIONS:
   --help                   Show this message.
 """
 
+_error = if argv.color then clc.red.bold else (x)->x
+
 run = ->
     if argv.help
         console.log usage
@@ -31,14 +33,10 @@ run = ->
     mozrepl = new Mozrepl argv.host, argv.port
     mozrepl.connect (err)->
         if err
-            console.error clc.red.bold("Error occured while connecting Mozrepl")
-            console.error(err.stack || err.toString())
-            return
+            console.error _error("An error occured while connecting Mozrepl")
+            console.error (err.stack || err.toString())
+            process.exit 1            
         mozfee = new Mozfee mozrepl, stdin, stdout, options
         mozfee.run()
-
-# Log an error.
-process.on 'uncaughtException', (err)->
-    console.error (err.stack or err.toString())
 
 exports.run = run
