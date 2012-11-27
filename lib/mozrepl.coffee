@@ -15,6 +15,7 @@ class Mozrepl extends EventEmitter
     ERROR = 6
 
     constructor: (@host = HOST, @port = PORT)->
+        @evalMode = 'js'
         @state = null
         @lines = []
         @buffer = ''
@@ -32,7 +33,7 @@ class Mozrepl extends EventEmitter
             if @repl_name
                 if @request
                     result = @parseResult str
-                    @request.cb result if @request.cb
+                    @request.cb null, result if @request.cb
                     @request = null
                     @serve()    # リクエストがあれば引続き
                 else
@@ -65,7 +66,7 @@ class Mozrepl extends EventEmitter
         @pending_requests.push code: code, cb: cb
         @serve()            
         
-    eval: (code, cb) ->
+    evalJS: (code, cb) ->
         # ! Needs {(#{code})} . Just {#{code}} doesn't work with object literal.
         # 逆に 3; みたいなコードが来ると {(3;)}ではエラーになる
         # オブジェクトリテラルの時のみに(..)で囲む
@@ -80,7 +81,16 @@ class Mozrepl extends EventEmitter
             # Async callbacks must be always async
             process.nextTick -> cb(e)
             return
-        @eval jsCode, (res)-> cb(null, res)
+        @eval jsCode, cb
+
+    eval: (mode, code, cb) ->
+        if arguments.length == 2
+            cb = code
+            code = mode
+            mode = @evalMode
+        switch mode
+            when 'cs' then @evalCS code, cb
+            when 'js' then @evalJS code, cb
 
     repl: (command, cb) ->
         @eval "#{@repl_name}.#{command}", cb

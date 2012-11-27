@@ -2,15 +2,19 @@
 {Mozfee} = require './mozfee'
 clc      = require 'cli-color'
 argv     = require('optimist')
-    .boolean(['help', 'mozrepl-greeting', 'color'])
+    .boolean(['help', 'mozrepl-greeting', 'color', 'cs', 'js'])
     .default('color', true)
     .default('mozrepl-greeting', false)
+    .default('cs', false)
+    .default('js', false)    
     .argv
 
 usage = """
-mozfee [OPTIONS]
+mozfee [OPTIONS...]
 
 OPTIONS:
+  --cs                     Uses CoffeeScript (default).
+  --js                     Uses JavaScript.
   --eval <code>            Eval code and exit.
   --host <host>            Host (default: localhost)
   --port <port>            Port (default: 4242)
@@ -34,10 +38,10 @@ run = ->
             console.error (err.stack || err.toString())
             process.exit 1
         if argv.eval
+            mode = if argv.js then 'js' else 'cs'
             code = argv.eval.toString()
-            mozrepl.evalCS code, (err, res)->
+            mozrepl.eval mode, code, (err, res)->
                 if err
-                    console.error _error("CoffeeScript Compile Error")
                     console.error (err.stack || err.toString())
                     process.exit 1
                 console.log res

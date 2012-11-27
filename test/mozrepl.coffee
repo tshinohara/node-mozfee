@@ -49,7 +49,7 @@ describe 'Mozrepl', ->
         for [code, expected_result] in tests
             ((code, expected_result)->
                 it "should eval JS code '#{code}' to '#{expected_result}'", (done)->
-                    mozrepl.eval code, (result)->
+                    mozrepl.eval code, (err, result)->
                         result.should.be.string expected_result
                         done()
             )(code, expected_result)

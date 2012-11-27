@@ -21,7 +21,6 @@ Run mozfee command.
     mozfee> document.title
     "mozfee"
 
-
 ### How to end the REPL
 
 * repl.quit() or
@@ -45,6 +44,8 @@ Lookup `mozfee --help` for options you can use.
     mozfee [OPTIONS]
     
     OPTIONS:
+      --cs                     Uses CoffeeScript (default).
+      --js                     Uses JavaScript.
       --eval <code>            Eval code and exit.
       --host <host>            Host (default: localhost)
       --port <port>            Port (default: 4242)
