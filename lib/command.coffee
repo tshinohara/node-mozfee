@@ -1,4 +1,6 @@
+{Mozrepl} = require './mozrepl'
 {Mozfee} = require './mozfee'
+clc      = require 'cli-color'
 argv     = require('optimist')
     .boolean(['help', 'mozrepl-greeting', 'color'])
     .default('color', true)
@@ -22,16 +24,22 @@ run = ->
         return
     stdin  = process.stdin
     stdout = process.stdout
-    mozfee = new Mozfee stdin, stdout, {
-        'mozrepl-greeting': argv['mozrepl-greeting']
-        color: argv.color
-        host: argv.host
-        port: argv.port
-    }
-    mozfee.run()
+    mozrepl = new Mozrepl argv.host, argv.port
+    errCb = (e)->
+        console.error clc.red.bold("Error occured while connecting Mozrepl")
+        console.error(e.stack || e.toString())
+    mozrepl.connect()        
+    mozrepl.on 'connect', ->
+        mozrepl.removeListener 'error', errCb
+        mozfee = new Mozfee mozrepl, stdin, stdout, {
+            'mozrepl-greeting': argv['mozrepl-greeting']
+            color: argv.color
+        }
+        mozfee.run()
+    mozrepl.on 'error', errCb
 
 # Log an error.
-process.on 'uncaughtException', (err)->
-    console.error (err.stack or err.toString())
+#process.on 'uncaughtException', (err)->
+#    console.error (err.stack or err.toString())
 
 exports.run = run

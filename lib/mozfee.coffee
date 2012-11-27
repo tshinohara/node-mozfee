@@ -14,30 +14,16 @@ empty_cli_color = ->
 class Mozfee
     NORMAL = 'normal'
     CONTINUATION = 'continuation'
-    MOZREPLING = 'mozrepling'
+    EVALUATING = 'evaluating'
 
     DefaultOptioin = {
         color: true,
         'mozrepl-greeting': false,
-        host: 'localhost'
-        port: 4242
     }
-    constructor: (@stdin, @stdout, @opt={}) ->
+    constructor: (@mozrepl, @stdin, @stdout, @opt={}) ->
         @opt[k] ?= v for own k, v of DefaultOptioin
         @clc = if @opt.color then clc else empty_cli_color()
-        @mozrepl = new Mozrepl @opt.host, @opt.port
-        @rl = readline.createInterface @stdin, @stdout
-        @rl.on "line", (line)=> @line line
-        @rl.on "pause", => @rl.close()
-        @rl.on "close",  =>
-            @close()
-        # Raw mode でも return, ctrl-j, ctrl-m は区別できない？
-        @rl.input.on 'keypress', (char, key) =>
-            return if !(key && key.ctrl && !key.meta && !key.shift && key.name == 'v')
-            @rl.write '\\\n'            
-        @mode = NORMAL
-        @backlog = ''
-
+        
     preprocess: (buf) ->
         buf = buf.replace /(^|[\r\n]+)(\s*)##?(?:[^#\r\n][^\r\n]*|)($|[\r\n])/, "$1$2$3"
         buf = buf.replace /[\r\n]+$/, ""
@@ -58,17 +44,13 @@ class Mozfee
                 return on
             code = buf
 
-        try
-            jscode = CoffeeScript.compile code, bare: true
-        catch e
-            @rl.output.write @clc.yellow.bold("!! CoffeeScript Compile Error !!\n")
-            @rl.output.write "#{e}\n"
-            @mode = NORMAL
-            return on
-            
-        @mode = MOZREPLING
-        @mozrepl.eval jscode, (r)=>
-            @rl.output.write "#{r}\n"
+        @mode = EVALUATING
+        @mozrepl.evalCS code, (err, res)=>
+            if err
+                @rl.output.write @clc.yellow.bold("!! CoffeeScript Compile Error !!\n")
+                @rl.output.write "#{err}\n"
+            else
+                @rl.output.write "#{res}\n"
             @mode = NORMAL
             @prompt()
         return no
@@ -93,18 +75,28 @@ class Mozfee
         @rl.prompt()
         
     run: ->
-        @mozrepl.connect()
-        @mozrepl.on "connect", =>
-            # Mozrepl が接続を切ったらreplを落す
-            @mozrepl.on "close", =>
-                @close()
-            if @opt['mozrepl-greeting']
-                @rl.output.write @clc.blue("#{@mozrepl.greeting}\n")
-            @prompt()
+        @mode = NORMAL
+        @backlog = ''
+        
+        @rl = readline.createInterface @stdin, @stdout
+        @rl.on "line", (line)=> @line line
+        @rl.on "pause", => @close()
+        @rl.on "close", => @close()
+        # Raw mode でも return, ctrl-j, ctrl-m は区別できない？
+        @rl.input.on 'keypress', (char, key) =>
+            return if !(key && key.ctrl && !key.meta && !key.shift && key.name == 'v')
+            @rl.write '\\\n'            
+        
+        @mozrepl.on "close", =>
+            @close()            
         @mozrepl.on "error", (e)=>
             @rl.output.write @clc.red.bold("!! Mozrepl Connection Error !!\n")
             @rl.output.write(e.stack || e.toString())
             @close()
+             
+        if @opt['mozrepl-greeting']
+            @rl.output.write @clc.blue("#{@mozrepl.greeting}\n")
+        @prompt()
 
     close: ->
         return if @_closing
