@@ -3,11 +3,22 @@
 clc      = require 'cli-color'
 argv     = require('optimist')
     .boolean(['help', 'mozrepl-greeting', 'color', 'cs', 'js'])
+    .string(['eval', 'host', 'port'])
+    .alias(e: 'eval', h: 'help')
     .default('color', true)
     .default('mozrepl-greeting', false)
     .default('cs', false)
-    .default('js', false)    
+    .default('js', false)
     .argv
+
+ableOptions = [
+    'help', 'mozrepl-greeting', 'color', 'cs', 'js',
+    'eval', 'host', 'port',
+    'e', 'h'
+]
+
+unkownOptions = (argv)->
+    k for own k of argv when !(k =='_' || k =='$0' || k in ableOptions)
 
 usage = """
 mozfee [OPTIONS...]
@@ -15,17 +26,24 @@ mozfee [OPTIONS...]
 OPTIONS:
   --cs                     Uses CoffeeScript (default).
   --js                     Uses JavaScript.
-  --eval <code>            Eval code and exit.
+  -e, --eval <code>        Eval code and exit.
   --host <host>            Host (default: localhost)
   --port <port>            Port (default: 4242)
   --[no-]mozrepl-greeting  Shows greeting from Mozrepl (defualt: false).
   --[no-]color             Colorize the output (default: true).
-  --help                   Show this message.
+  -h, --help               Show this message.
 """
 
 _error = if argv.color then clc.red.bold else (x)->x
 
 run = ->
+    unkowns = unkownOptions argv
+    if unkowns.length > 0
+        unkowns = unkowns.map (i)-> if i.length == 1 then "-#{i}" else "--#{i}"
+        unkowns = unkowns.join ', '
+        console.log _error("Unkown options : #{unkowns}\n")
+        console.log usage
+        process.exit 1
     if argv.help
         console.log usage
         return
