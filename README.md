@@ -1,7 +1,12 @@
 Mozfee
 ======
 
-Mozrepl + CoffeeScript. 
+[MozRepl](https://github.com/bard/mozrepl) + [CoffeeScript](http://coffeescript.org/) + α.
+
+MozRepl is a Firefox addon that enables you to access inside Firefox from outside (e.g. terminal).
+Though it is awesome, it lacks features like CoffeeScript support, command line eval and so on.
+
+Mozfee aims to cover these features.
 
 Install
 -------
@@ -13,7 +18,7 @@ Mozfee is installed using [Node](http://nodejs.org/) and [npm](http://npmjs.org/
 Usage
 -----
 
-Run mozfee command.
+`mozfee` command without any options will invoke a MozRepl REPL with CoffeeScript.
 
     $ mozfee
     mozfee> repl.enter content
@@ -46,12 +51,12 @@ Lookup `mozfee --help` for options you can use.
     OPTIONS:
       --cs                     Uses CoffeeScript (default).
       --js                     Uses JavaScript.
-      --eval <code>            Eval code and exit.
+      -e, --eval <code>        Eval code and exit.
       --host <host>            Host (default: localhost)
       --port <port>            Port (default: 4242)
       --[no-]mozrepl-greeting  Shows greeting from Mozrepl (defualt: false).
       --[no-]color             Colorize the output (default: true).
-      --help                   Show this message.
+      -h, --help               Show this message.
 
 License
 -------
