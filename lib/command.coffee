@@ -31,6 +31,7 @@ run = ->
         return
     stdin  = process.stdin
     stdout = process.stdout
+    mode = if argv.js then 'js' else 'cs'
     mozrepl = new Mozrepl argv.host, argv.port
     mozrepl.connect (err)->
         if err
@@ -38,7 +39,6 @@ run = ->
             console.error (err.stack || err.toString())
             process.exit 1
         if argv.eval
-            mode = if argv.js then 'js' else 'cs'
             code = argv.eval.toString()
             mozrepl.eval mode, code, (err, res)->
                 if err
@@ -50,6 +50,7 @@ run = ->
             options = {
                 'mozrepl-greeting': argv['mozrepl-greeting']
                 color: argv.color
+                mode: mode
             }
             mozfee = new Mozfee mozrepl, stdin, stdout, options
             mozfee.run()

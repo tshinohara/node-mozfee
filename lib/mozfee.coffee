@@ -17,6 +17,7 @@ class Mozfee
     EVALUATING = 'evaluating'
 
     DefaultOptioin = {
+        mode: 'cs'
         color: true,
         'mozrepl-greeting': false,
     }
@@ -45,7 +46,7 @@ class Mozfee
             code = buf
 
         @mode = EVALUATING
-        @mozrepl.evalCS code, (err, res)=>
+        @mozrepl.eval @opt.mode, code, (err, res)=>
             if err
                 @rl.output.write @clc.yellow.bold("!! CoffeeScript Compile Error !!\n")
                 @rl.output.write "#{err}\n"
