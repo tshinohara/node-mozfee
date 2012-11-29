@@ -81,7 +81,9 @@ class Mozfee
         
         @rl = readline.createInterface @stdin, @stdout
         @rl.on "line", (line)=> @line line
-        @rl.on "pause", => @close()
+        # Do not close on "pause" event.
+        # TabCompleter (pressing TAB) emits "pause" event.
+        # @rl.on "pause", => @close()
         @rl.on "close", => @close()
         # Raw mode でも return, ctrl-j, ctrl-m は区別できない？
         @rl.input.on 'keypress', (char, key) =>
