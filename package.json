@@ -1,6 +1,6 @@
 {
   "name": "mozfee",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "MozRepl + CoffeeScript + α",
   "scripts": {
     "test": "make test"
