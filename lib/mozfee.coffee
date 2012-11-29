@@ -62,9 +62,12 @@ class Mozfee
             @prompt()
 
     normalPrompt: ->
-        ['mozfee> ', 8]
+        mode = @opt.mode
+        repl_name = @mozrepl.repl_name
+        ["#{mode}-#{repl_name}> ", 3 + mode.length + repl_name.length]
     continuationPrompt: ->
-        ['......> ', 8]
+        dotLength = 1 + @opt.mode.length + @mozrepl.repl_name.length
+        [('.' for _ in [1..dotLength]).join('') + '> ', dotLength + 2]
             
     prompt: ->
         switch @mode
