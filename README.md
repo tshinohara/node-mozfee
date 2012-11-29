@@ -46,9 +46,10 @@ Continuation mode continues untill you pass an empty line.
 ### Options
 Lookup `mozfee --help` for options you can use.
 
-    mozfee [OPTIONS]
+    mozfee [OPTIONS...]
     
     OPTIONS:
+      -c, --content            repl.enter(content) before executing.
       --cs                     Uses CoffeeScript (default).
       --js                     Uses JavaScript.
       -e, --eval <code>        Eval code and exit.

@@ -92,8 +92,8 @@ class Mozrepl extends EventEmitter
             when 'cs' then @evalCS code, cb
             when 'js' then @evalJS code, cb
 
-    repl: (command, cb) ->
-        @eval "#{@repl_name}.#{command}", cb
+    replJS: (command, cb) ->
+        @evalJS "#{@repl_name}.#{command}", cb
 
     onData: (s)->
         @emit "_received", s # for debug

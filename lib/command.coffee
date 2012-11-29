@@ -2,9 +2,9 @@
 {Mozfee} = require './mozfee'
 clc      = require 'cli-color'
 argv     = require('optimist')
-    .boolean(['help', 'mozrepl-greeting', 'color', 'cs', 'js'])
+    .boolean(['help', 'mozrepl-greeting', 'color', 'cs', 'js', 'content'])
     .string(['eval', 'host', 'port'])
-    .alias(e: 'eval', h: 'help')
+    .alias(e: 'eval', h: 'help', c: 'content')
     .default('color', true)
     .default('mozrepl-greeting', false)
     .default('cs', false)
@@ -13,8 +13,8 @@ argv     = require('optimist')
 
 ableOptions = [
     'help', 'mozrepl-greeting', 'color', 'cs', 'js',
-    'eval', 'host', 'port',
-    'e', 'h'
+    'eval', 'host', 'port', 'content',
+    'e', 'h', 'c', 
 ]
 
 unkownOptions = (argv)->
@@ -24,6 +24,7 @@ usage = """
 mozfee [OPTIONS...]
 
 OPTIONS:
+  -c, --content            repl.enter(content) before executing.
   --cs                     Uses CoffeeScript (default).
   --js                     Uses JavaScript.
   -e, --eval <code>        Eval code and exit.
@@ -51,11 +52,7 @@ run = ->
     stdout = process.stdout
     mode = if argv.js then 'js' else 'cs'
     mozrepl = new Mozrepl argv.host, argv.port
-    mozrepl.connect (err)->
-        if err
-            console.error _error("An error occured while connecting Mozrepl")
-            console.error (err.stack || err.toString())
-            process.exit 1
+    exe = ->
         if argv.eval
             code = argv.eval.toString()
             mozrepl.eval mode, code, (err, res)->
@@ -72,5 +69,20 @@ run = ->
             }
             mozfee = new Mozfee mozrepl, stdin, stdout, options
             mozfee.run()
+    mozrepl.connect (err)->
+        if err
+            console.error _error("An error occured while connecting Mozrepl")
+            console.error (err.stack || err.toString())
+            process.exit 1
+        # ugly... use flow-control library?
+        if argv.content
+            mozrepl.replJS "enter(content)", (err, _)->
+                if err
+                    console.error _error("repl.enter(content) error.")
+                    console.error (err.stack || err.toString())
+                    process.exit 1                    
+                exe()
+        else
+            exe()
 
 exports.run = run
