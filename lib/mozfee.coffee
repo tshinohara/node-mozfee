@@ -90,9 +90,13 @@ class Mozfee
         @rl.on "close", => @close()
         # Raw mode でも return, ctrl-j, ctrl-m は区別できない？
         @rl.input.on 'keypress', (char, key) =>
-            return if !(key && key.ctrl && !key.meta && !key.shift && key.name == 'v')
-            @rl.write '\\\n'            
-        
+            ctrl_v = (key && key.ctrl && !key.meta && !key.shift && key.name == 'v')
+            return unless ctrl_v
+            if @mode is NORMAL
+              @rl.write '\\\n'
+            else if @mode is CONTINUATION
+              @rl.write '\n'        
+
         @mozrepl.on "close", =>
             @close()            
         @mozrepl.on "error", (e)=>
