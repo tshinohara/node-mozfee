@@ -29,7 +29,7 @@ class Mozfee
         buf = buf.replace /(^|[\r\n]+)(\s*)##?(?:[^#\r\n][^\r\n]*|)($|[\r\n])/, "$1$2$3"
         buf = buf.replace /[\r\n]+$/, ""
         buf
-        
+       
     process: (buf) ->
         if @mode == CONTINUATION
             if buf.trim()            
@@ -58,7 +58,8 @@ class Mozfee
         
     
     line: (buf)->
-        if @process(@preprocess(buf))
+        comment = -> buf.match(/^\s{0,}#/)?
+        if comment() or @process(@preprocess(buf))
             @prompt()
 
     normalPrompt: ->
@@ -90,9 +91,13 @@ class Mozfee
         @rl.on "close", => @close()
         # Raw mode でも return, ctrl-j, ctrl-m は区別できない？
         @rl.input.on 'keypress', (char, key) =>
-            return if !(key && key.ctrl && !key.meta && !key.shift && key.name == 'v')
-            @rl.write '\\\n'            
-        
+            ctrl_v = (key && key.ctrl && !key.meta && !key.shift && key.name == 'v')
+            return unless ctrl_v
+            if @mode is NORMAL
+              @rl.write '\\\n'
+            else if @mode is CONTINUATION
+              @rl.write '\n'        
+
         @mozrepl.on "close", =>
             @close()            
         @mozrepl.on "error", (e)=>
