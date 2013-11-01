@@ -29,7 +29,7 @@ class Mozfee
         buf = buf.replace /(^|[\r\n]+)(\s*)##?(?:[^#\r\n][^\r\n]*|)($|[\r\n])/, "$1$2$3"
         buf = buf.replace /[\r\n]+$/, ""
         buf
-        
+       
     process: (buf) ->
         if @mode == CONTINUATION
             if buf.trim()            
@@ -58,7 +58,8 @@ class Mozfee
         
     
     line: (buf)->
-        if @process(@preprocess(buf))
+        comment = -> buf.match(/^\s{0,}#/)?
+        if comment() or @process(@preprocess(buf))
             @prompt()
 
     normalPrompt: ->
